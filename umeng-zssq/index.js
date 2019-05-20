@@ -1,3 +1,16 @@
+if (window.Element && !Element.prototype.closest) { //support Element.closest()
+    Element.prototype.closest =
+    function(s) {
+      var matches = (this.document || this.ownerDocument).querySelectorAll(s),
+          i,
+          el = this;
+      do {
+        i = matches.length;
+        while (--i >= 0 && matches.item(i) !== el) {};
+      } while ((i < 0) && (el = el.parentElement));
+      return el;
+    };
+}
 export default class Umeng{
     constructor(webId,onloadCallback){
         this.webId = webId;
@@ -32,9 +45,10 @@ export default class Umeng{
     }
     _addTemplateListener(){
         document.addEventListener('click',(event)=>{
-            const umengAction = event.target.dataset && event.target.dataset.umeng.split('|');
-            if(!umengAction || !umengAction.length) return false;
-            this.push(umengAction);
+            const targetDom = event.target.dataset.umeng ? event.target : event.target.closest("[data-umeng]");
+            const umengAction = targetDom.dataset && targetDom.dataset.umeng;
+            if(!umengAction) return false;
+            this.push(umengAction.split('|'));
         })
     }
 
